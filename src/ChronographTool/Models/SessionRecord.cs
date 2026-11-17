@@ -46,4 +46,23 @@ public sealed class RecordsDocument
 {
     public int Version { get; set; } = 1;
     public List<SessionRecord> Records { get; set; } = [];
+
+    /// <summary>
+    /// 檢查反序列化後的結構。C# 的非 null 宣告不保證 JSON 內容符合，
+    /// 例如 {"records":null} 或 "laps":null 都能反序列化成功。
+    /// 清單或元素為 null 時視為損壞（回傳錯誤訊息）；備註為 null 時補成空字串。
+    /// </summary>
+    public static string? Validate(RecordsDocument doc)
+    {
+        if (doc.Records is null) return "records 欄位不是清單";
+        for (int i = 0; i < doc.Records.Count; i++)
+        {
+            var r = doc.Records[i];
+            if (r is null) return $"第 {i + 1} 筆紀錄為 null";
+            if (r.Laps is null) return $"第 {i + 1} 筆紀錄的 laps 不是清單";
+            if (r.Laps.Any(l => l is null)) return $"第 {i + 1} 筆紀錄的計次含有 null";
+            r.Note ??= "";
+        }
+        return null;
+    }
 }

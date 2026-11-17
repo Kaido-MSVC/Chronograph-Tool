@@ -99,12 +99,19 @@ public static class Exporters
         return "\"" + field.Replace("\"", "\"\"", StringComparison.Ordinal) + "\"";
     }
 
+    /// <summary>
+    /// 防止試算表把欄位當成公式（CSV／公式注入）：以 = + - @ 或 Tab、CR 開頭的欄位前面加上單引號。
+    /// Excel 開啟時單引號不會顯示，儲存格會以文字呈現。
+    /// </summary>
+    public static string NeutralizeFormula(string field) =>
+        field.Length > 0 && field[0] is '=' or '+' or '-' or '@' or '\t' or '\r' ? "'" + field : field;
+
     private static void AppendRow(StringBuilder sb, IReadOnlyList<string> fields)
     {
         for (int i = 0; i < fields.Count; i++)
         {
             if (i > 0) sb.Append(',');
-            sb.Append(EscapeCsv(fields[i]));
+            sb.Append(EscapeCsv(NeutralizeFormula(fields[i])));
         }
         sb.Append("\r\n");
     }

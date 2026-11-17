@@ -105,6 +105,12 @@ public sealed partial class CountdownViewModel : ObservableObject
 
         if (engine.IsRunning)
         {
+            // 已到時但 UI 還沒刷新到：當作完成處理，不要暫停成「中止」。
+            if (engine.CheckCompleted())
+            {
+                OnCompleted();
+                return;
+            }
             engine.Pause();
         }
         else
@@ -124,7 +130,8 @@ public sealed partial class CountdownViewModel : ObservableObject
     private void Reset()
     {
         // 時間到之前重置＝中止，存一筆紀錄；已完成的在完成當下就存過了。
-        if (!engine.IsCompleted) SaveCurrent();
+        // 已到時但 UI 還沒刷新到時，先結算成「完成」（使用者正要重置，不再發出提醒）。
+        if (engine.CheckCompleted() || !engine.IsCompleted) SaveCurrent();
         engine.Reset();
         IsTimeUp = false;
         Refresh();
@@ -138,25 +145,36 @@ public sealed partial class CountdownViewModel : ObservableObject
     {
         if (engine.CheckCompleted())
         {
-            SaveCurrent();
-            IsTimeUp = true;
-            Refresh();
-            ui.AlertTimeUp(SoundEnabled);
+            OnCompleted();
             return false;
         }
         UpdateDisplay();
         return engine.IsRunning;
     }
 
-    /// <summary>關閉程式時：尚未完成的倒數存成「中止」。</summary>
+    /// <summary>關閉程式時：已到時的先結算成「完成」，其餘尚未完成的倒數存成「中止」。</summary>
     public void SaveOnExit()
     {
-        if (engine.HasStarted && !engine.IsCompleted)
+        if (engine.CheckCompleted())
+        {
+            SaveCurrent();
+        }
+        else if (engine.HasStarted && !engine.IsCompleted)
         {
             engine.Pause();
             SaveCurrent();
         }
         engine.Reset();
+        IsTimeUp = false;
+        Refresh();
+    }
+
+    private void OnCompleted()
+    {
+        SaveCurrent();
+        IsTimeUp = true;
+        Refresh();
+        ui.AlertTimeUp(SoundEnabled);
     }
 
     public void WriteTo(AppSettings settings)

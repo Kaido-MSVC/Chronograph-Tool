@@ -27,7 +27,31 @@ public partial class MainWindow : Window
         AddHandler(KeyUpEvent, OnPreviewKeyUp, RoutingStrategies.Tunnel);
         PositionChanged += (_, _) => TrackNormalBounds();
         SizeChanged += (_, _) => TrackNormalBounds();
-        Closing += (_, _) => FinishSession();
+        Closing += OnClosing;
+    }
+
+    private bool closeConfirmed;
+    private bool unsavedPromptOpen;
+
+    /// <summary>收尾後若紀錄仍寫不進去，先取消關閉並詢問使用者，避免直接遺失紀錄。</summary>
+    private async void OnClosing(object? sender, WindowClosingEventArgs e)
+    {
+        FinishSession();
+        if (closeConfirmed || ViewModel is not { HasUnsavedRecords: true } vm) return;
+
+        e.Cancel = true;
+        if (unsavedPromptOpen) return;
+        unsavedPromptOpen = true;
+        try
+        {
+            if (!await vm.ResolveUnsavedRecordsAsync()) return;
+        }
+        finally
+        {
+            unsavedPromptOpen = false;
+        }
+        closeConfirmed = true;
+        Close();
     }
 
     public IUiServices UiServices { get; }

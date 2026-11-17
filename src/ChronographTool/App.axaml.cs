@@ -48,8 +48,15 @@ public partial class App : Application
             $"{fileName} 無法解析，已改名保留為「{Path.GetFileName(result.PreservedPath)}」，並從備份（.bak）還原{what}。",
         LoadOutcome.CorruptUsingDefault =>
             $"{fileName} 無法解析，已改名保留為「{Path.GetFileName(result.PreservedPath)}」。沒有可用的備份，{what}從空白開始。",
+        LoadOutcome.Unreadable when result.PreservedPath is not null =>
+            $"{fileName} 無法解析，已改名保留為「{Path.GetFileName(result.PreservedPath)}」；備份（.bak）目前無法讀取（{result.Error}）。" +
+            $"為避免覆蓋備份，本次執行不會寫入{what}。請解除檔案鎖定後重新開啟程式，即可從備份還原。",
         LoadOutcome.Unreadable =>
-            $"無法讀取 {fileName}（{result.Error}）。為避免覆蓋原檔，本次執行不會寫入{what}。",
+            $"無法讀取 {fileName} 或其備份（{result.Error}）。為避免覆蓋原檔，本次執行不會寫入{what}。",
+        LoadOutcome.MissingRestoredFromBackup =>
+            $"找不到 {fileName}，已從備份（.bak）還原{what}。",
+        LoadOutcome.MissingBackupCorrupt =>
+            $"找不到 {fileName}，備份（.bak）也無法解析，已改名保留為「{Path.GetFileName(result.PreservedPath)}」。{what}從空白開始。",
         _ => null,
     };
 }

@@ -41,6 +41,25 @@ public class CsvExportTests
             "\"跑步, 第 \"\"1\"\" 組\r\n第二行\"\r\n", text);
     }
 
+    [Theory]
+    [InlineData("=1+1", "'=1+1")]
+    [InlineData("+SUM(A1)", "'+SUM(A1)")]
+    [InlineData("-5 分鐘", "'-5 分鐘")]
+    [InlineData("@cmd", "'@cmd")]
+    [InlineData("\tx", "'\tx")]
+    [InlineData("一般 = 備註", "一般 = 備註")]
+    [InlineData("", "")]
+    public void NeutralizeFormula_PrefixesFormulaTriggers(string input, string expected) =>
+        Assert.Equal(expected, Exporters.NeutralizeFormula(input));
+
+    [Fact]
+    public void RecordsCsv_NeutralizesFormulaInNote()
+    {
+        var record = new SessionRecord { Kind = SessionKind.Countdown, Note = "=HYPERLINK(\"x\",\"y\")" };
+        var text = Encoding.UTF8.GetString(Exporters.ToBytes(ExportFormat.CsvRecords, [record])[3..]);
+        Assert.EndsWith(",\"'=HYPERLINK(\"\"x\"\",\"\"y\"\")\"\r\n", text);
+    }
+
     [Fact]
     public void LapsCsv_HasOneRowPerLap()
     {

@@ -16,19 +16,24 @@ public enum LoadOutcome
     CorruptUsingDefault,
     /// <summary>檔案無法讀取（被鎖住或權限不足），以預設值開始，且停止寫回避免覆蓋。</summary>
     Unreadable,
+    /// <summary>主檔不存在但 .bak 完整，已從 .bak 還原。</summary>
+    MissingRestoredFromBackup,
+    /// <summary>主檔不存在且 .bak 損壞，已改名保留 .bak 並以預設值開始。</summary>
+    MissingBackupCorrupt,
 }
 
 public sealed record LoadResult<T>(T Value, LoadOutcome Outcome, string? PreservedPath = null, string? Error = null)
 {
     /// <summary>是否應該提示使用者。</summary>
-    public bool NeedsAttention => Outcome is LoadOutcome.RestoredFromBackup or LoadOutcome.CorruptUsingDefault or LoadOutcome.Unreadable;
+    public bool NeedsAttention => Outcome is not (LoadOutcome.Missing or LoadOutcome.Loaded);
 }
 
 /// <summary>
 /// JSON 檔案的安全讀寫：先寫入 .tmp 再以 File.Replace 取代原檔並保留 .bak；
-/// 解析失敗時不覆蓋，改名保留損壞檔後嘗試從 .bak 還原。
+/// 解析或結構驗證失敗時不覆蓋，改名保留損壞檔後嘗試從 .bak 還原；主檔不存在時也會先檢查 .bak。
 /// </summary>
-public sealed class JsonFileStore<T>(string path, JsonTypeInfo<T> typeInfo, Func<T> createDefault, TimeProvider? time = null)
+/// <param name="validate">反序列化後的結構檢查，可順便補正無害的欄位；回傳錯誤訊息表示資料損壞，null 表示通過。</param>
+public sealed class JsonFileStore<T>(string path, JsonTypeInfo<T> typeInfo, Func<T> createDefault, Func<T, string?>? validate = null, TimeProvider? time = null)
     where T : class
 {
     private readonly TimeProvider time = time ?? TimeProvider.System;
@@ -39,7 +44,7 @@ public sealed class JsonFileStore<T>(string path, JsonTypeInfo<T> typeInfo, Func
 
     public LoadResult<T> Load()
     {
-        if (!File.Exists(Path)) return new(createDefault(), LoadOutcome.Missing);
+        if (!File.Exists(Path)) return LoadWithoutMainFile();
 
         string text;
         try
@@ -57,7 +62,7 @@ public sealed class JsonFileStore<T>(string path, JsonTypeInfo<T> typeInfo, Func
         string preserved;
         try
         {
-            preserved = PreserveCorruptFile();
+            preserved = PreserveCorruptFile(Path, "corrupt");
         }
         catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
         {
@@ -66,18 +71,21 @@ public sealed class JsonFileStore<T>(string path, JsonTypeInfo<T> typeInfo, Func
 
         if (File.Exists(BackupPath))
         {
+            string backupText;
             try
             {
-                var backupText = File.ReadAllText(BackupPath, Encoding.UTF8);
-                if (TryParse(backupText, out var restored, out _))
-                {
-                    File.Copy(BackupPath, Path, overwrite: false);
-                    return new(restored, LoadOutcome.RestoredFromBackup, preserved, parseError);
-                }
+                backupText = File.ReadAllText(BackupPath, Encoding.UTF8);
             }
             catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
             {
-                // 備份不可用時改用預設值；損壞檔已保留。
+                // 備份暫時讀不到（鎖定、權限）：不寫入，避免之後的存檔把可能完好的備份輪替掉。
+                return new(createDefault(), LoadOutcome.Unreadable, preserved, ex.Message);
+            }
+
+            if (TryParse(backupText, out var restored, out _))
+            {
+                TryCopyBackupToMain();
+                return new(restored, LoadOutcome.RestoredFromBackup, preserved, parseError);
             }
         }
 
@@ -101,17 +109,75 @@ public sealed class JsonFileStore<T>(string path, JsonTypeInfo<T> typeInfo, Func
             File.Move(TempPath, Path);
     }
 
+    /// <summary>
+    /// 主檔不存在（例如損壞檔已改名、但還原前程式中斷）：有 .bak 就先試著還原，
+    /// 避免以空資料開始後，之後的存檔把備份輪替掉。
+    /// </summary>
+    private LoadResult<T> LoadWithoutMainFile()
+    {
+        if (!File.Exists(BackupPath)) return new(createDefault(), LoadOutcome.Missing);
+
+        string backupText;
+        try
+        {
+            backupText = File.ReadAllText(BackupPath, Encoding.UTF8);
+        }
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
+        {
+            // 備份讀不到時不寫入，避免之後的存檔輪替掉備份。
+            return new(createDefault(), LoadOutcome.Unreadable, Error: ex.Message);
+        }
+
+        if (TryParse(backupText, out var restored, out var parseError))
+        {
+            TryCopyBackupToMain();
+            return new(restored, LoadOutcome.MissingRestoredFromBackup);
+        }
+
+        // 備份也損壞：改名保留，避免之後的存檔把它輪替掉。
+        try
+        {
+            var preserved = PreserveCorruptFile(BackupPath, "bak.corrupt");
+            return new(createDefault(), LoadOutcome.MissingBackupCorrupt, preserved, parseError);
+        }
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
+        {
+            return new(createDefault(), LoadOutcome.Unreadable, Error: ex.Message);
+        }
+    }
+
+    /// <summary>
+    /// 把已解析成功的 .bak 複製回主檔。失敗時仍沿用已讀出的還原內容：
+    /// 主檔不存在，下次存檔會直接建立主檔，不會動到 .bak。
+    /// </summary>
+    private void TryCopyBackupToMain()
+    {
+        try
+        {
+            File.Copy(BackupPath, Path, overwrite: false);
+        }
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
+        {
+        }
+    }
+
     private bool TryParse(string text, out T value, out string? error)
     {
         try
         {
             if (JsonSerializer.Deserialize(text, typeInfo) is { } parsed)
             {
-                value = parsed;
-                error = null;
-                return true;
+                error = validate?.Invoke(parsed);
+                if (error is null)
+                {
+                    value = parsed;
+                    return true;
+                }
             }
-            error = "檔案內容為 null";
+            else
+            {
+                error = "檔案內容為 null";
+            }
         }
         catch (JsonException ex)
         {
@@ -121,19 +187,19 @@ public sealed class JsonFileStore<T>(string path, JsonTypeInfo<T> typeInfo, Func
         return false;
     }
 
-    /// <summary>把損壞的主檔改名為 name.corrupt-yyyyMMdd-HHmmss.json。</summary>
-    private string PreserveCorruptFile()
+    /// <summary>把損壞的檔案改名為 name.{label}-yyyyMMdd-HHmmss.json（name 與副檔名取自主檔）。</summary>
+    private string PreserveCorruptFile(string source, string label)
     {
         var directory = System.IO.Path.GetDirectoryName(Path)!;
         var name = System.IO.Path.GetFileNameWithoutExtension(Path);
         var extension = System.IO.Path.GetExtension(Path);
         var stamp = time.GetLocalNow().ToString("yyyyMMdd-HHmmss", CultureInfo.InvariantCulture);
 
-        var target = System.IO.Path.Combine(directory, $"{name}.corrupt-{stamp}{extension}");
+        var target = System.IO.Path.Combine(directory, $"{name}.{label}-{stamp}{extension}");
         for (int i = 2; File.Exists(target); i++)
-            target = System.IO.Path.Combine(directory, $"{name}.corrupt-{stamp}-{i}{extension}");
+            target = System.IO.Path.Combine(directory, $"{name}.{label}-{stamp}-{i}{extension}");
 
-        File.Move(Path, target);
+        File.Move(source, target);
         return target;
     }
 }

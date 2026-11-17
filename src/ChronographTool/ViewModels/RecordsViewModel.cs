@@ -79,15 +79,48 @@ public sealed partial class RecordsViewModel : ObservableObject
         OnPropertyChanged(nameof(SummaryText));
     }
 
-    /// <summary>把尚未存檔的備註寫入 records.json（編輯框失去焦點、切換紀錄或關閉程式時呼叫）。</summary>
+    /// <summary>
+    /// 把尚未存檔的備註，以及先前寫入失敗的變更寫入 records.json
+    /// （編輯框失去焦點、切換紀錄或關閉程式時呼叫）。
+    /// </summary>
     public void CommitNote()
     {
+        if (!TrySaveNow()) notify(SaveFailedMessage);
+    }
+
+    /// <summary>有尚未成功寫入 records.json 的變更（含還沒提交的備註）。</summary>
+    public bool HasUnsavedChanges => repository.HasUnsavedChanges || all.Any(i => i.IsNoteDirty);
+
+    /// <summary>records.json 是否允許寫入（讀取失敗時為 false，重試也不會寫入）。</summary>
+    public bool CanSaveToFile => repository.CanSave;
+
+    /// <summary>不顯示通知的重試存檔，回傳是否成功。</summary>
+    public bool TrySaveNow()
+    {
         var dirty = all.Where(i => i.IsNoteDirty).ToList();
-        if (dirty.Count == 0) return;
-        if (repository.Save())
-            foreach (var item in dirty) item.IsNoteDirty = false;
-        else
-            notify(SaveFailedMessage);
+        foreach (var item in dirty) item.IsNoteDirty = false;
+        if (dirty.Count > 0) repository.MarkChanged();
+        return !repository.HasUnsavedChanges || repository.Save();
+    }
+
+    /// <summary>
+    /// 把全部紀錄另存成 JSON（與 records.json 同格式）。
+    /// 回傳 Saved=false 且 Error=null 表示使用者取消。
+    /// </summary>
+    public async Task<(bool Saved, string? Error)> SaveCopyAsync()
+    {
+        var stamp = DateTime.Now.ToString("yyyyMMdd-HHmmss", CultureInfo.InvariantCulture);
+        try
+        {
+            await using var stream = await ui.PickSaveFileAsync("另存紀錄", $"records-{stamp}.json", "JSON 檔案", "json");
+            if (stream is null) return (false, null);
+            await repository.WriteCopyToAsync(stream);
+            return (true, null);
+        }
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or NotSupportedException)
+        {
+            return (false, ex.Message);
+        }
     }
 
     partial void OnCurrentChanged(RecordItemViewModel? oldValue, RecordItemViewModel? newValue) => CommitNote();
@@ -172,7 +205,7 @@ public sealed partial class RecordsViewModel : ObservableObject
         }
     }
 
-    private const string SaveFailedMessage = "紀錄無法寫入 records.json，請確認檔案沒有被其他程式鎖定。資料仍保留在程式中，下次變更時會再嘗試寫入。";
+    private const string SaveFailedMessage = "紀錄無法寫入 records.json，請確認檔案沒有被其他程式鎖定。資料仍保留在程式中，下次變更或關閉程式時會再嘗試寫入。";
 
     private bool Matches(RecordItemViewModel item)
     {

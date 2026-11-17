@@ -79,6 +79,10 @@ public sealed partial class StopwatchViewModel : ObservableObject
         engine.Pause();
         SaveCurrent();
         engine.Reset();
+        // 關閉可能因紀錄未儲存而取消，畫面要跟著回到未開始狀態。
+        Laps.Clear();
+        OnPropertyChanged(nameof(HasLaps));
+        Refresh();
     }
 
     private void SaveCurrent()
