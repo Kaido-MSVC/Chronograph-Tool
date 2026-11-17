@@ -1,4 +1,4 @@
-param([Parameter(Mandatory)][string]$OutIco, [string]$PreviewPng)
+﻿param([Parameter(Mandatory)][string]$OutIco, [string]$PreviewPng)
 
 Add-Type -AssemblyName System.Drawing
 $ErrorActionPreference = 'Stop'
@@ -51,7 +51,7 @@ function New-StopwatchBitmap([int]$size) {
         }
     }
 
-    # 指針：指向約 1 點半（秒針紅色）
+    # 時針與秒針：秒針為紅色，指向約 1 點半
     $pen = [System.Drawing.Pen]::new($hand, [float](12*$s*$boost))
     $pen.StartCap = $pen.EndCap = [System.Drawing.Drawing2D.LineCap]::Round
     $g.DrawLine($pen, [float]$cx, [float]$cy, [float]$cx, [float]($cy - $ri*0.55))
