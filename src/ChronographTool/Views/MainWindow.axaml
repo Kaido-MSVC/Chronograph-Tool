@@ -5,6 +5,7 @@
         x:Class="ChronographTool.Views.MainWindow"
         x:DataType="vm:MainWindowViewModel"
         Title="Chronograph Tool"
+        Icon="/Assets/app.ico"
         Width="820" Height="620" MinWidth="640" MinHeight="480"
         WindowStartupLocation="CenterScreen">
 

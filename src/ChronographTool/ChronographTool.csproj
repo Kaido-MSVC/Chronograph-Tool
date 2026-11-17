@@ -6,6 +6,7 @@
     <AssemblyName>ChronographTool</AssemblyName>
     <RootNamespace>ChronographTool</RootNamespace>
     <ApplicationManifest>app.manifest</ApplicationManifest>
+    <ApplicationIcon>Assets\app.ico</ApplicationIcon>
     <!-- LibraryImport（PlaySound、FlashWindowEx、AllowSetForegroundWindow）的產生程式碼需要。 -->
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <Version>0.1.0</Version>
@@ -15,6 +16,8 @@
 
   <ItemGroup>
     <InternalsVisibleTo Include="ChronographTool.Tests" />
+    <!-- 視窗標題列與工作列圖示；圖示由 tools/make-icon.ps1 產生。 -->
+    <AvaloniaResource Include="Assets\app.ico" />
   </ItemGroup>
 
   <ItemGroup>
@@ -23,4 +26,12 @@
     <PackageReference Include="Avalonia.Themes.Fluent" Version="12.1.6" />
     <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.2" />
   </ItemGroup>
+
+  <!-- 發行時排除 SkiaSharp／HarfBuzz 原生程式庫附帶的 .pdb（約 105 MB，執行時用不到）；保留本程式自己的 .pdb。 -->
+  <Target Name="ExcludeNativePdbFromPublish" AfterTargets="ComputeResolvedFilesToPublishList">
+    <ItemGroup>
+      <ResolvedFileToPublish Remove="@(ResolvedFileToPublish)"
+                             Condition="'%(Extension)' == '.pdb' And '%(Filename)' != '$(AssemblyName)'" />
+    </ItemGroup>
+  </Target>
 </Project>

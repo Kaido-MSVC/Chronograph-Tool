@@ -78,8 +78,18 @@ dotnet run --project src/ChronographTool
 
 `dotnet test` 透過 `global.json` 的 `test.runner` 使用 Microsoft Testing Platform。從 .NET 10 SDK 起，xUnit v3 不再支援用 VSTest 模式執行 `dotnet test`。
 
-發行版（framework-dependent，需要安裝 .NET 11 Desktop Runtime）：
+發行版（framework-dependent，需要安裝 [.NET 11 Desktop Runtime x64](https://dotnet.microsoft.com/download/dotnet/11.0)）：
 
 ```powershell
 dotnet publish src/ChronographTool -c Release -r win-x64 --self-contained false -o publish
+```
+
+輸出在 `publish\`，約 27 MB、35 個檔案，執行 `publish\ChronographTool.exe`。分享時請把整個資料夾一起給，不要只複製 exe。發行時會排除 SkiaSharp／HarfBuzz 原生程式庫附帶的 .pdb（約 105 MB），只保留本程式的 `ChronographTool.pdb`。
+
+## 圖示
+
+`src/ChronographTool/Assets/app.ico` 內含 16–256 px 共 9 種尺寸（PNG 壓縮）。exe 檔案圖示與視窗圖示都用這個檔案。圖示由 `tools/make-icon.ps1` 以 System.Drawing 繪製；要修改時改這個腳本再重新產生：
+
+```powershell
+./tools/make-icon.ps1 -OutIco src/ChronographTool/Assets/app.ico
 ```
