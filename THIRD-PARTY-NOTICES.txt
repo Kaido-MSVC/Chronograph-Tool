@@ -20,7 +20,10 @@ Chronograph Tool 本身以 MIT 授權釋出（見 LICENSE）。
         Avalonia.FreeDesktop、Avalonia.FreeDesktop.AtSpi、
         Avalonia.Remote.Protocol（皆為 12.1.6）
   檔案：Avalonia*.dll（共 22 個）
-  著作權：Copyright 2013-2026 © The AvaloniaUI Project
+  著作權：Copyright (c) AvaloniaUI OÜ
+          （取自 GitHub 原始碼庫的 licence.md）
+  套件著作權：Copyright 2013-2026 © The AvaloniaUI Project
+          （NuGet 套件 nuspec 所列，供參考）
   網址：https://github.com/AvaloniaUI/Avalonia
 
 [Avalonia.Angle.Windows.Natives 2.1.27548.20260419] 授權：BSD-3-Clause
@@ -87,12 +90,12 @@ Chronograph Tool 本身以 MIT 授權釋出（見 LICENSE）。
 
 MIT License
 
-Copyright 2013-2026 © The AvaloniaUI Project
-  (Avalonia, Avalonia.Desktop, Avalonia.Themes.Fluent, Avalonia.Skia, Avalonia.HarfBuzz,
+Copyright (c) AvaloniaUI OÜ
+  (Avalonia,Avalonia.Desktop, Avalonia.Themes.Fluent, Avalonia.Skia, Avalonia.HarfBuzz,
    Avalonia.Win32, Avalonia.Native, Avalonia.X11, Avalonia.FreeDesktop,
    Avalonia.FreeDesktop.AtSpi, Avalonia.Remote.Protocol 12.1.6)
 Copyright 2021 © Nikita Tsukanov (MicroCom.Runtime 0.11.6)
-Copyright Tom Deseyn (Tmds.DBus.Protocol 0.94.1)
+Tom Deseyn (Tmds.DBus.Protocol 0.94.1)
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
 associated documentation files (the "Software"), to deal in the Software without restriction, including
