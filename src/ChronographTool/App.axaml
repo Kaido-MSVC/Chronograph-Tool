@@ -1,0 +1,89 @@
+<Application xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             x:Class="ChronographTool.App"
+             RequestedThemeVariant="Default">
+  <!-- RequestedThemeVariant="Default"：淺色／深色跟隨系統設定。 -->
+
+  <Application.Resources>
+    <ResourceDictionary>
+      <ResourceDictionary.ThemeDictionaries>
+        <ResourceDictionary x:Key="Light">
+          <SolidColorBrush x:Key="FastestBrush" Color="#1A7F37" />
+          <SolidColorBrush x:Key="SlowestBrush" Color="#C4314B" />
+          <SolidColorBrush x:Key="MutedTextBrush" Color="#5F6368" />
+          <SolidColorBrush x:Key="PanelBrush" Color="#F4F5F7" />
+          <SolidColorBrush x:Key="PanelBorderBrush" Color="#E1E3E8" />
+          <SolidColorBrush x:Key="NoticeBrush" Color="#FFF4CE" />
+          <SolidColorBrush x:Key="NoticeTextBrush" Color="#4A3A00" />
+          <SolidColorBrush x:Key="TimeUpBrush" Color="#FDE7E9" />
+          <SolidColorBrush x:Key="TimeUpTextBrush" Color="#8A1C2B" />
+        </ResourceDictionary>
+        <ResourceDictionary x:Key="Dark">
+          <SolidColorBrush x:Key="FastestBrush" Color="#6CCB8A" />
+          <SolidColorBrush x:Key="SlowestBrush" Color="#FF8A9B" />
+          <SolidColorBrush x:Key="MutedTextBrush" Color="#A8ADB4" />
+          <SolidColorBrush x:Key="PanelBrush" Color="#25272B" />
+          <SolidColorBrush x:Key="PanelBorderBrush" Color="#373A40" />
+          <SolidColorBrush x:Key="NoticeBrush" Color="#433519" />
+          <SolidColorBrush x:Key="NoticeTextBrush" Color="#FCE8B2" />
+          <SolidColorBrush x:Key="TimeUpBrush" Color="#4A1F26" />
+          <SolidColorBrush x:Key="TimeUpTextBrush" Color="#FFD1D7" />
+        </ResourceDictionary>
+      </ResourceDictionary.ThemeDictionaries>
+
+      <FontFamily x:Key="DigitsFont">Cascadia Mono, Consolas, Courier New</FontFamily>
+    </ResourceDictionary>
+  </Application.Resources>
+
+  <Application.Styles>
+    <FluentTheme />
+
+    <Style Selector="TextBlock.digits">
+      <Setter Property="FontFamily" Value="{StaticResource DigitsFont}" />
+    </Style>
+    <Style Selector="TextBlock.muted">
+      <Setter Property="Foreground" Value="{DynamicResource MutedTextBrush}" />
+    </Style>
+    <Style Selector="TextBlock.section">
+      <Setter Property="FontSize" Value="13" />
+      <Setter Property="FontWeight" Value="SemiBold" />
+      <Setter Property="Foreground" Value="{DynamicResource MutedTextBrush}" />
+    </Style>
+    <Style Selector="Border.panel">
+      <Setter Property="Background" Value="{DynamicResource PanelBrush}" />
+      <Setter Property="BorderBrush" Value="{DynamicResource PanelBorderBrush}" />
+      <Setter Property="BorderThickness" Value="1" />
+      <Setter Property="CornerRadius" Value="8" />
+    </Style>
+    <Style Selector="Button.primary, Button.secondary">
+      <Setter Property="MinWidth" Value="104" />
+      <Setter Property="Padding" Value="16,8" />
+      <Setter Property="HorizontalContentAlignment" Value="Center" />
+      <Setter Property="FontSize" Value="15" />
+    </Style>
+    <!-- 最快／最慢標籤：外框與文字同色，深淺色主題都維持足夠對比。 -->
+    <Style Selector="Border.badge">
+      <Setter Property="CornerRadius" Value="4" />
+      <Setter Property="BorderThickness" Value="1" />
+      <Setter Property="Padding" Value="6,0" />
+      <Setter Property="Margin" Value="8,0,0,0" />
+      <Setter Property="VerticalAlignment" Value="Center" />
+    </Style>
+    <Style Selector="Border.badge > TextBlock">
+      <Setter Property="FontSize" Value="12" />
+      <Setter Property="FontWeight" Value="SemiBold" />
+    </Style>
+    <Style Selector="Border.badge.fastest">
+      <Setter Property="BorderBrush" Value="{DynamicResource FastestBrush}" />
+    </Style>
+    <Style Selector="Border.badge.fastest > TextBlock">
+      <Setter Property="Foreground" Value="{DynamicResource FastestBrush}" />
+    </Style>
+    <Style Selector="Border.badge.slowest">
+      <Setter Property="BorderBrush" Value="{DynamicResource SlowestBrush}" />
+    </Style>
+    <Style Selector="Border.badge.slowest > TextBlock">
+      <Setter Property="Foreground" Value="{DynamicResource SlowestBrush}" />
+    </Style>
+  </Application.Styles>
+</Application>

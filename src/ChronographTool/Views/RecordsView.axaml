@@ -1,0 +1,132 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:ChronographTool.ViewModels"
+             x:Class="ChronographTool.Views.RecordsView"
+             x:DataType="vm:RecordsViewModel">
+
+  <Grid RowDefinitions="Auto,*,Auto" Margin="16,12,16,12">
+    <!-- 篩選列 -->
+    <WrapPanel Orientation="Horizontal">
+      <ComboBox ItemsSource="{Binding KindOptions}" SelectedIndex="{Binding KindFilter}" MinWidth="120"
+                Margin="0,0,12,8" VerticalAlignment="Center" />
+      <TextBlock Text="從" VerticalAlignment="Center" Margin="0,0,6,8" />
+      <CalendarDatePicker SelectedDate="{Binding FromDate}" PlaceholderText="不限" Width="150" Margin="0,0,12,8" />
+      <TextBlock Text="到" VerticalAlignment="Center" Margin="0,0,6,8" />
+      <CalendarDatePicker SelectedDate="{Binding ToDate}" PlaceholderText="不限" Width="150" Margin="0,0,12,8" />
+      <Button Content="清除篩選" Command="{Binding ClearFilterCommand}" Margin="0,0,0,8" />
+    </WrapPanel>
+
+    <!-- 明細固定寬度，確保計次列（圈號、單圈＋標籤、累計）在最小視窗寬度下也不重疊。 -->
+    <Grid Grid.Row="1" ColumnDefinitions="*,8,330" Margin="0,4,0,8">
+      <!-- 清單（Ctrl／Shift 可多選） -->
+      <Border Classes="panel">
+        <Grid>
+          <TextBlock Classes="muted" Text="{Binding EmptyText}" IsVisible="{Binding IsEmpty}" TextWrapping="Wrap"
+                     HorizontalAlignment="Center" VerticalAlignment="Center" TextAlignment="Center" Margin="24" />
+          <ListBox x:Name="RecordList" ItemsSource="{Binding Items}" SelectedItem="{Binding Current}"
+                   SelectionMode="Multiple" Background="Transparent">
+            <ListBox.ItemTemplate>
+              <DataTemplate x:DataType="vm:RecordItemViewModel">
+                <Grid ColumnDefinitions="Auto,*,Auto" RowDefinitions="Auto,Auto">
+                  <TextBlock Text="{Binding KindText}" FontWeight="SemiBold" Width="56" />
+                  <TextBlock Grid.Column="1" Text="{Binding StartText}" Classes="muted" />
+                  <StackPanel Grid.Column="2" Orientation="Horizontal">
+                    <Border Classes="badge slowest" IsVisible="{Binding IsAborted}" Margin="0,0,8,0">
+                      <TextBlock Text="中止" />
+                    </Border>
+                    <TextBlock Classes="digits" Text="{Binding DurationText}" />
+                  </StackPanel>
+                  <TextBlock Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="2" Classes="muted" FontSize="12"
+                             Text="{Binding NotePreview}" TextTrimming="CharacterEllipsis" Margin="0,2,0,0"
+                             IsVisible="{Binding NotePreview, Converter={x:Static StringConverters.IsNotNullOrEmpty}}" />
+                </Grid>
+              </DataTemplate>
+            </ListBox.ItemTemplate>
+          </ListBox>
+        </Grid>
+      </Border>
+
+      <!-- 明細 -->
+      <Border Grid.Column="2" Classes="panel" Padding="16">
+        <Grid>
+          <TextBlock Classes="muted" Text="選取一筆紀錄以檢視明細與編輯備註。" TextWrapping="Wrap"
+                     HorizontalAlignment="Center" VerticalAlignment="Center" TextAlignment="Center"
+                     IsVisible="{Binding !HasCurrent}" />
+          <ScrollViewer IsVisible="{Binding HasCurrent}">
+            <StackPanel DataContext="{Binding Current}" x:DataType="vm:RecordItemViewModel" Spacing="6">
+              <TextBlock FontSize="18" FontWeight="SemiBold">
+                <Run Text="{Binding KindText}" />
+                <Run Text="·" />
+                <Run Text="{Binding StatusText}" />
+              </TextBlock>
+              <Grid ColumnDefinitions="Auto,*" RowDefinitions="Auto,Auto,Auto,Auto" Margin="0,4,0,4">
+                <Grid.Styles>
+                  <Style Selector="TextBlock">
+                    <Setter Property="Margin" Value="0,2" />
+                  </Style>
+                </Grid.Styles>
+                <TextBlock Classes="muted" Text="開始" Margin="0,2,16,2" />
+                <TextBlock Grid.Column="1" Text="{Binding StartText}" />
+                <TextBlock Grid.Row="1" Classes="muted" Text="結束" Margin="0,2,16,2" />
+                <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding EndText}" />
+                <TextBlock Grid.Row="2" Classes="muted" Text="總時長" Margin="0,2,16,2" />
+                <TextBlock Grid.Row="2" Grid.Column="1" Classes="digits" Text="{Binding DurationText}" />
+                <TextBlock Grid.Row="3" Classes="muted" Text="設定時長" Margin="0,2,16,2" IsVisible="{Binding IsCountdown}" />
+                <TextBlock Grid.Row="3" Grid.Column="1" Classes="digits" Text="{Binding TargetText}" IsVisible="{Binding IsCountdown}" />
+              </Grid>
+
+              <TextBlock Classes="section" Text="備註" Margin="0,6,0,0" />
+              <TextBox x:Name="NoteBox" Text="{Binding Note, UpdateSourceTrigger=PropertyChanged}"
+                       AcceptsReturn="True" TextWrapping="Wrap" MinHeight="64" MaxHeight="160"
+                       PlaceholderText="輸入備註，離開編輯框時自動儲存" />
+
+              <StackPanel IsVisible="{Binding HasLaps}" Spacing="4" Margin="0,8,0,0">
+                <TextBlock Classes="section">
+                  <Run Text="計次明細" />
+                  <Run Text="{Binding LapCountText}" />
+                </TextBlock>
+                <ItemsControl ItemsSource="{Binding Laps}">
+                  <ItemsControl.ItemTemplate>
+                    <DataTemplate x:DataType="vm:LapItemViewModel">
+                      <Grid ColumnDefinitions="36,Auto,*,Auto" Margin="0,2">
+                        <Grid.Styles>
+                          <Style Selector="TextBlock.digits">
+                            <Setter Property="FontSize" Value="13" />
+                            <Setter Property="VerticalAlignment" Value="Center" />
+                          </Style>
+                        </Grid.Styles>
+                        <TextBlock Classes="digits" Text="{Binding NumberText}" />
+                        <TextBlock Grid.Column="1" Classes="digits" Text="{Binding SplitText}" />
+                        <Panel Grid.Column="2" HorizontalAlignment="Left">
+                          <Border Classes="badge fastest" IsVisible="{Binding IsFastest}" Margin="6,0,0,0">
+                            <TextBlock Text="最快" />
+                          </Border>
+                          <Border Classes="badge slowest" IsVisible="{Binding IsSlowest}" Margin="6,0,0,0">
+                            <TextBlock Text="最慢" />
+                          </Border>
+                        </Panel>
+                        <TextBlock Grid.Column="3" Classes="digits muted" Text="{Binding CumulativeText}" Margin="8,0,0,0" />
+                      </Grid>
+                    </DataTemplate>
+                  </ItemsControl.ItemTemplate>
+                </ItemsControl>
+              </StackPanel>
+            </StackPanel>
+          </ScrollViewer>
+        </Grid>
+      </Border>
+    </Grid>
+
+    <!-- 動作列 -->
+    <Grid Grid.Row="2" ColumnDefinitions="Auto,*,Auto">
+      <Button Content="刪除選取…" Command="{Binding DeleteSelectedCommand}" VerticalAlignment="Center" />
+      <TextBlock Grid.Column="1" Classes="muted" Text="{Binding SummaryText}" VerticalAlignment="Center"
+                 Margin="12,0" TextTrimming="CharacterEllipsis" />
+      <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="8">
+        <ComboBox ItemsSource="{Binding ExportScopeOptions}" SelectedIndex="{Binding ExportScope}" MinWidth="130" />
+        <ComboBox ItemsSource="{Binding ExportFormatOptions}" SelectedIndex="{Binding ExportFormatIndex}" MinWidth="210" />
+        <Button Classes="accent" Content="匯出…" Command="{Binding ExportCommand}" IsEnabled="{Binding HasAnyRecord}" />
+      </StackPanel>
+    </Grid>
+  </Grid>
+</UserControl>

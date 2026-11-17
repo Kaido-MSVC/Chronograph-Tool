@@ -1,0 +1,26 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net11.0-windows</TargetFramework>
+    <LangVersion>15.0</LangVersion>
+    <AssemblyName>ChronographTool</AssemblyName>
+    <RootNamespace>ChronographTool</RootNamespace>
+    <ApplicationManifest>app.manifest</ApplicationManifest>
+    <!-- LibraryImport（PlaySound、FlashWindowEx、AllowSetForegroundWindow）的產生程式碼需要。 -->
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <Version>0.1.0</Version>
+    <Product>Chronograph Tool</Product>
+    <AssemblyTitle>Chronograph Tool</AssemblyTitle>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="ChronographTool.Tests" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Avalonia" Version="12.1.6" />
+    <PackageReference Include="Avalonia.Desktop" Version="12.1.6" />
+    <PackageReference Include="Avalonia.Themes.Fluent" Version="12.1.6" />
+    <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.2" />
+  </ItemGroup>
+</Project>

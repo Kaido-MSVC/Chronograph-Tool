@@ -1,0 +1,52 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:ChronographTool.ViewModels"
+             x:Class="ChronographTool.Views.StopwatchView"
+             x:DataType="vm:StopwatchViewModel">
+
+  <Grid RowDefinitions="Auto,Auto,Auto,*" Margin="24,20,24,20" MaxWidth="720">
+    <TextBlock Classes="digits" Text="{Binding Display}" FontSize="64" FontWeight="Light"
+               HorizontalAlignment="Center" Margin="0,16,0,20" />
+
+    <StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Center" Spacing="12">
+      <Button Classes="primary accent" Content="{Binding StartPauseText}" Command="{Binding StartPauseCommand}" />
+      <Button Classes="secondary" Content="計次" Command="{Binding LapCommand}" />
+      <Button Classes="secondary" Content="重置" Command="{Binding ResetCommand}" />
+    </StackPanel>
+
+    <TextBlock Grid.Row="2" Classes="muted" HorizontalAlignment="Center" Margin="0,12,0,16" FontSize="12"
+               Text="快捷鍵：空白鍵 開始／暫停　L 計次　R 重置（重置時自動存成紀錄）" />
+
+    <Border Grid.Row="3" Classes="panel" Padding="0,8">
+      <Grid RowDefinitions="Auto,*">
+        <Grid ColumnDefinitions="80,*,*" Margin="16,4,16,8">
+          <TextBlock Classes="section" Text="圈" />
+          <TextBlock Grid.Column="1" Classes="section" Text="單圈時間" />
+          <TextBlock Grid.Column="2" Classes="section" Text="累計時間" />
+        </Grid>
+        <TextBlock Grid.Row="1" Classes="muted" Text="計時中按「計次」記錄每一圈。"
+                   HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,24"
+                   IsVisible="{Binding !HasLaps}" />
+        <ListBox Grid.Row="1" ItemsSource="{Binding Laps}" Background="Transparent" Focusable="False">
+          <ListBox.ItemTemplate>
+            <DataTemplate x:DataType="vm:LapItemViewModel">
+              <Grid ColumnDefinitions="80,*,*">
+                <TextBlock Classes="digits" Text="{Binding NumberText}" VerticalAlignment="Center" />
+                <StackPanel Grid.Column="1" Orientation="Horizontal">
+                  <TextBlock Classes="digits" Text="{Binding SplitText}" VerticalAlignment="Center" />
+                  <Border Classes="badge fastest" IsVisible="{Binding IsFastest}">
+                    <TextBlock Text="最快" />
+                  </Border>
+                  <Border Classes="badge slowest" IsVisible="{Binding IsSlowest}">
+                    <TextBlock Text="最慢" />
+                  </Border>
+                </StackPanel>
+                <TextBlock Grid.Column="2" Classes="digits muted" Text="{Binding CumulativeText}" VerticalAlignment="Center" />
+              </Grid>
+            </DataTemplate>
+          </ListBox.ItemTemplate>
+        </ListBox>
+      </Grid>
+    </Border>
+  </Grid>
+</UserControl>

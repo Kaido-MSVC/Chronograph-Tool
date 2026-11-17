@@ -1,0 +1,35 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:ChronographTool.ViewModels"
+        xmlns:views="using:ChronographTool.Views"
+        x:Class="ChronographTool.Views.MainWindow"
+        x:DataType="vm:MainWindowViewModel"
+        Title="Chronograph Tool"
+        Width="820" Height="620" MinWidth="640" MinHeight="480"
+        WindowStartupLocation="CenterScreen">
+
+  <DockPanel>
+    <!-- 提示列：載入失敗、存檔失敗、匯出結果等訊息。 -->
+    <Border DockPanel.Dock="Top" IsVisible="{Binding HasNotice}"
+            Background="{DynamicResource NoticeBrush}" Padding="16,10">
+      <Grid ColumnDefinitions="*,Auto">
+        <SelectableTextBlock Text="{Binding Notice}" TextWrapping="Wrap" VerticalAlignment="Center"
+                             Foreground="{DynamicResource NoticeTextBrush}" />
+        <Button Grid.Column="1" Content="關閉" Margin="12,0,0,0" VerticalAlignment="Top"
+                Command="{Binding DismissNoticeCommand}" />
+      </Grid>
+    </Border>
+
+    <TabControl SelectedIndex="{Binding SelectedTab}" Padding="0">
+      <TabItem Header="碼表">
+        <views:StopwatchView DataContext="{Binding Stopwatch}" />
+      </TabItem>
+      <TabItem Header="計時器">
+        <views:CountdownView DataContext="{Binding Countdown}" />
+      </TabItem>
+      <TabItem Header="紀錄">
+        <views:RecordsView DataContext="{Binding Records}" />
+      </TabItem>
+    </TabControl>
+  </DockPanel>
+</Window>
