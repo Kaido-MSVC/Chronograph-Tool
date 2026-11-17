@@ -1,0 +1,25 @@
+Chronograph Tool 使用說明
+========================
+
+Windows 用的碼表與倒數計時器。
+
+一、執行前要先安裝 .NET 11 Desktop Runtime（x64）
+  本程式需要微軟的 .NET 11 Desktop Runtime 才能執行。
+  請到微軟官方下載頁，在「.NET Desktop Runtime」那一列下載 Windows「x64」安裝程式：
+  https://dotnet.microsoft.com/download/dotnet/11.0
+  已經裝過的話不用重新安裝。沒裝就開啟程式時，Windows 會跳出提示要你安裝。
+
+二、整個資料夾要一起保留
+  ChronographTool.exe 需要同一個資料夾裡的其他檔案（.dll 等）才能執行。
+  請保留整個資料夾，不要只把 exe 複製出去。
+  想從桌面開啟的話，對 ChronographTool.exe 按右鍵建立捷徑，再把捷徑放到桌面。
+
+三、紀錄存放位置
+  計時紀錄與設定存在：
+    %APPDATA%\Chronograph Tool
+  （在檔案總管的網址列輸入上面這行就能開啟。）
+  刪除或更新程式資料夾不會影響紀錄；要換電腦時，把這個資料夾一起複製過去即可。
+
+四、授權
+  本程式以 MIT 授權釋出，條文見 LICENSE；
+  使用到的第三方元件與授權見 THIRD-PARTY-NOTICES.txt。

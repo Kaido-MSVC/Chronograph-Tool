@@ -89,7 +89,15 @@ dotnet run --project src/ChronographTool
 dotnet publish src/ChronographTool -c Release -r win-x64 --self-contained false -o publish
 ```
 
-輸出在 `publish\`，約 27 MB、35 個檔案，執行 `publish\ChronographTool.exe`。分享時請把整個資料夾一起給，不要只複製 exe。發行時會排除 SkiaSharp／HarfBuzz 原生程式庫附帶的 .pdb（約 105 MB），只保留本程式的 `ChronographTool.pdb`。
+輸出在 `publish\`，約 27 MB、38 個檔案，執行 `publish\ChronographTool.exe`。分享時請把整個資料夾一起給，不要只複製 exe。發行時會排除 SkiaSharp／HarfBuzz 原生程式庫附帶的 .pdb（約 105 MB），只保留本程式的 `ChronographTool.pdb`。
+
+發行時會一併複製三個文件到 `publish\` 根目錄：`LICENSE`、`THIRD-PARTY-NOTICES.txt`，以及給使用者看的 `使用說明.txt`（原始檔在 `packaging\`）。`LICENSE` 與 `THIRD-PARTY-NOTICES.txt` 另外以內嵌資源打包進程式，分頁列右側的「關於」對話方塊會顯示它們；就算資料夾裡的檔案被刪掉也能看。
+
+## 授權
+
+本專案以 [MIT 授權](LICENSE) 釋出，Copyright (c) 2026 Kaido-MSVC。
+
+發行版包含的第三方元件（Avalonia、CommunityToolkit.Mvvm、SkiaSharp／Skia、HarfBuzzSharp／HarfBuzz、ANGLE、MicroCom.Runtime、Tmds.DBus.Protocol）依各自的授權提供，清單、著作權聲明與授權全文見 [THIRD-PARTY-NOTICES.txt](THIRD-PARTY-NOTICES.txt)。更新套件版本時，要依 `packages.lock.json` 重新核對這份清單。
 
 ## 圖示
 

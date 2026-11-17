@@ -12,7 +12,19 @@
     <Version>0.1.0</Version>
     <Product>Chronograph Tool</Product>
     <AssemblyTitle>Chronograph Tool</AssemblyTitle>
+    <!-- 「關於」對話方塊從 AssemblyCopyright／AssemblyInformationalVersion 讀取著作權與版本。 -->
+    <Copyright>Copyright © 2026 Kaido-MSVC</Copyright>
   </PropertyGroup>
+
+  <!-- 授權文件：嵌入程式供「關於」對話方塊顯示（發行資料夾內的檔案被刪也能看），
+       同時複製到發行資料夾根目錄。使用說明.txt 只放在發行資料夾。 -->
+  <ItemGroup>
+    <EmbeddedResource Include="..\..\LICENSE" LogicalName="ChronographTool.LICENSE" Visible="false" />
+    <EmbeddedResource Include="..\..\THIRD-PARTY-NOTICES.txt" LogicalName="ChronographTool.THIRD-PARTY-NOTICES.txt" Visible="false" />
+    <None Include="..\..\LICENSE" Link="LICENSE" CopyToPublishDirectory="PreserveNewest" Visible="false" />
+    <None Include="..\..\THIRD-PARTY-NOTICES.txt" Link="THIRD-PARTY-NOTICES.txt" CopyToPublishDirectory="PreserveNewest" Visible="false" />
+    <None Include="..\..\packaging\使用說明.txt" Link="使用說明.txt" CopyToPublishDirectory="PreserveNewest" Visible="false" />
+  </ItemGroup>
 
   <ItemGroup>
     <InternalsVisibleTo Include="ChronographTool.Tests" />

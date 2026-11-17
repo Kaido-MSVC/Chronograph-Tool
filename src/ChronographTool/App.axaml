@@ -61,6 +61,14 @@
       <Setter Property="HorizontalContentAlignment" Value="Center" />
       <Setter Property="FontSize" Value="15" />
     </Style>
+    <!-- 低調的文字按鈕（如「關於」）：平時無背景與外框，滑鼠移上才顯示 Fluent 的懸停底色。 -->
+    <Style Selector="Button.subtle">
+      <Setter Property="Background" Value="Transparent" />
+      <Setter Property="BorderThickness" Value="0" />
+      <Setter Property="Padding" Value="10,5" />
+      <Setter Property="FontSize" Value="13" />
+      <Setter Property="Foreground" Value="{DynamicResource MutedTextBrush}" />
+    </Style>
     <!-- 最快／最慢標籤：外框與文字同色，深淺色主題都維持足夠對比。 -->
     <Style Selector="Border.badge">
       <Setter Property="CornerRadius" Value="4" />

@@ -56,6 +56,11 @@ public partial class MainWindow : Window
 
     public IUiServices UiServices { get; }
 
+    private void OnAboutClick(object? sender, RoutedEventArgs e)
+    {
+        _ = new AboutDialog().ShowDialog(this);
+    }
+
     private MainWindowViewModel? ViewModel => DataContext as MainWindowViewModel;
 
     /// <summary>收尾：存備註、進行中的計時、設定與視窗位置。可重複呼叫。</summary>

@@ -21,16 +21,23 @@
       </Grid>
     </Border>
 
-    <TabControl SelectedIndex="{Binding SelectedTab}" Padding="0">
-      <TabItem Header="碼表">
-        <views:StopwatchView DataContext="{Binding Stopwatch}" />
-      </TabItem>
-      <TabItem Header="計時器">
-        <views:CountdownView DataContext="{Binding Countdown}" />
-      </TabItem>
-      <TabItem Header="紀錄">
-        <views:RecordsView DataContext="{Binding Records}" />
-      </TabItem>
-    </TabControl>
+    <Grid>
+      <TabControl SelectedIndex="{Binding SelectedTab}" Padding="0">
+        <TabItem Header="碼表">
+          <views:StopwatchView DataContext="{Binding Stopwatch}" />
+        </TabItem>
+        <TabItem Header="計時器">
+          <views:CountdownView DataContext="{Binding Countdown}" />
+        </TabItem>
+        <TabItem Header="紀錄">
+          <views:RecordsView DataContext="{Binding Records}" />
+        </TabItem>
+      </TabControl>
+
+      <!-- 「關於」：疊在分頁列右側，低調的文字按鈕。 -->
+      <Button Classes="subtle" Content="關於" Click="OnAboutClick"
+              HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,8,12,0"
+              ToolTip.Tip="版本、著作權與授權資訊" />
+    </Grid>
   </DockPanel>
 </Window>
