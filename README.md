@@ -2,6 +2,14 @@
 
 Windows 桌面用的碼表與倒數計時器，能自動記錄每次計時，並匯出成 CSV 或 JSON。介面為繁體中文，淺色／深色主題跟隨系統設定。
 
+## 下載
+
+1. 先安裝 [.NET 11 Desktop Runtime（x64）](https://dotnet.microsoft.com/download/dotnet/11.0)：在下載頁的「.NET Desktop Runtime」那一列，下載 Windows x64 安裝程式。已經裝過就不用再裝。
+2. 到 [Releases 頁面](https://github.com/Kaido-MSVC/Chronograph-Tool/releases) 下載最新版的 `ChronographTool-<版本>-win-x64.zip`。
+3. 解壓縮後執行資料夾裡的 `ChronographTool.exe`。整個資料夾要一起保留，不要只把 exe 複製出去。
+
+系統需求：Windows 10／11 x64。紀錄存在 `%APPDATA%\Chronograph Tool\`。
+
 ## 功能
 
 - **碼表**：開始、暫停、繼續、重置、計次。顯示格式為 `HH:MM:SS.mmm`；計次清單列出編號、單圈時間、累計時間，並標示最快與最慢的一圈（兩圈以上才標示）。
