@@ -4,7 +4,7 @@
              x:Class="ChronographTool.Views.RecordsView"
              x:DataType="vm:RecordsViewModel">
 
-  <Grid RowDefinitions="Auto,*,Auto" Margin="16,12,16,12">
+  <Grid RowDefinitions="Auto,*,Auto" Margin="16,4,16,12">
     <!-- 篩選列 -->
     <WrapPanel Orientation="Horizontal">
       <ComboBox ItemsSource="{Binding KindOptions}" SelectedIndex="{Binding KindFilter}" MinWidth="120"
@@ -13,7 +13,9 @@
       <CalendarDatePicker SelectedDate="{Binding FromDate}" PlaceholderText="不限" Width="150" Margin="0,0,12,8" />
       <TextBlock Text="到" VerticalAlignment="Center" Margin="0,0,6,8" />
       <CalendarDatePicker SelectedDate="{Binding ToDate}" PlaceholderText="不限" Width="150" Margin="0,0,12,8" />
-      <Button Content="清除篩選" Command="{Binding ClearFilterCommand}" Margin="0,0,0,8" />
+      <Button Content="清除篩選" Command="{Binding ClearFilterCommand}" Margin="0,0,16,8" />
+      <!-- 筆數摘要放在篩選列；寬度不夠時由 WrapPanel 換到下一行，不會被截斷。 -->
+      <TextBlock Classes="muted" Text="{Binding SummaryText}" VerticalAlignment="Center" Margin="0,0,0,8" />
     </WrapPanel>
 
     <!-- 明細固定寬度，確保計次列（圈號、單圈＋標籤、累計）在最小視窗寬度下也不重疊。 -->
@@ -27,16 +29,21 @@
                    SelectionMode="Multiple" Background="Transparent">
             <ListBox.ItemTemplate>
               <DataTemplate x:DataType="vm:RecordItemViewModel">
-                <Grid ColumnDefinitions="Auto,*,Auto" RowDefinitions="Auto,Auto">
-                  <TextBlock Text="{Binding KindText}" FontWeight="SemiBold" Width="56" />
-                  <TextBlock Grid.Column="1" Text="{Binding StartText}" Classes="muted" />
+                <!-- 第一行：類型（左）、中止＋時長（右）；第二行：開始時間；第三行：備註預覽。
+                     分成多行，最小視窗寬度下開始時間與時長才不會互相重疊。 -->
+                <Grid ColumnDefinitions="Auto,*,Auto" RowDefinitions="Auto,Auto,Auto" Margin="0,2">
+                  <Border Classes="kindChip" Classes.countdown="{Binding IsCountdown}">
+                    <TextBlock Text="{Binding KindText}" />
+                  </Border>
                   <StackPanel Grid.Column="2" Orientation="Horizontal">
                     <Border Classes="badge slowest" IsVisible="{Binding IsAborted}" Margin="0,0,8,0">
                       <TextBlock Text="中止" />
                     </Border>
                     <TextBlock Classes="digits" Text="{Binding DurationText}" />
                   </StackPanel>
-                  <TextBlock Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="2" Classes="muted" FontSize="12"
+                  <TextBlock Grid.Row="1" Grid.ColumnSpan="3" Text="{Binding StartText}" Classes="muted" FontSize="12"
+                             TextTrimming="CharacterEllipsis" Margin="0,4,0,0" />
+                  <TextBlock Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="3" Classes="muted" FontSize="12"
                              Text="{Binding NotePreview}" TextTrimming="CharacterEllipsis" Margin="0,2,0,0"
                              IsVisible="{Binding NotePreview, Converter={x:Static StringConverters.IsNotNullOrEmpty}}" />
                 </Grid>
@@ -120,8 +127,6 @@
     <!-- 動作列 -->
     <Grid Grid.Row="2" ColumnDefinitions="Auto,*,Auto">
       <Button Content="刪除選取…" Command="{Binding DeleteSelectedCommand}" VerticalAlignment="Center" />
-      <TextBlock Grid.Column="1" Classes="muted" Text="{Binding SummaryText}" VerticalAlignment="Center"
-                 Margin="12,0" TextTrimming="CharacterEllipsis" />
       <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="8">
         <ComboBox ItemsSource="{Binding ExportScopeOptions}" SelectedIndex="{Binding ExportScope}" MinWidth="130" />
         <ComboBox ItemsSource="{Binding ExportFormatOptions}" SelectedIndex="{Binding ExportFormatIndex}" MinWidth="210" />

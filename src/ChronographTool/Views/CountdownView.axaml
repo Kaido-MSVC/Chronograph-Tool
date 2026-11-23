@@ -1,25 +1,26 @@
 <UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:vm="using:ChronographTool.ViewModels"
+             xmlns:views="using:ChronographTool.Views"
              x:Class="ChronographTool.Views.CountdownView"
              x:DataType="vm:CountdownViewModel">
 
-  <StackPanel Margin="24,20,24,20" MaxWidth="720" Spacing="16">
+  <Grid RowDefinitions="Auto,*,Auto,Auto,Auto" Margin="24,4,24,16" MaxWidth="760">
     <!-- 時間設定：開始後鎖定，重置後才能修改。 -->
-    <Border Classes="panel" Padding="16" IsEnabled="{Binding CanEditDuration}">
-      <StackPanel Spacing="12">
-        <TextBlock Classes="section" Text="設定時間" />
-        <StackPanel Orientation="Horizontal" Spacing="8">
+    <Border Classes="panel" Padding="16,12" IsEnabled="{Binding CanEditDuration}">
+      <StackPanel Spacing="10">
+        <WrapPanel Orientation="Horizontal">
+          <TextBlock Classes="section" Text="設定時間" VerticalAlignment="Center" Margin="0,0,16,0" />
           <NumericUpDown Value="{Binding Hours}" Minimum="0" Maximum="99" Increment="1" FormatString="0"
-                         Width="120" ParsingNumberStyle="Integer" />
-          <TextBlock Text="時" VerticalAlignment="Center" Margin="0,0,12,0" />
+                         Width="116" ParsingNumberStyle="Integer" />
+          <TextBlock Text="時" VerticalAlignment="Center" Margin="6,0,14,0" />
           <NumericUpDown Value="{Binding Minutes}" Minimum="0" Maximum="59" Increment="1" FormatString="0"
-                         Width="120" ParsingNumberStyle="Integer" />
-          <TextBlock Text="分" VerticalAlignment="Center" Margin="0,0,12,0" />
+                         Width="116" ParsingNumberStyle="Integer" />
+          <TextBlock Text="分" VerticalAlignment="Center" Margin="6,0,14,0" />
           <NumericUpDown Value="{Binding Seconds}" Minimum="0" Maximum="59" Increment="1" FormatString="0"
-                         Width="120" ParsingNumberStyle="Integer" />
-          <TextBlock Text="秒" VerticalAlignment="Center" />
-        </StackPanel>
+                         Width="116" ParsingNumberStyle="Integer" />
+          <TextBlock Text="秒" VerticalAlignment="Center" Margin="6,0,0,0" />
+        </WrapPanel>
         <ItemsControl ItemsSource="{Binding Presets}">
           <ItemsControl.ItemsPanel>
             <ItemsPanelTemplate>
@@ -28,7 +29,7 @@
           </ItemsControl.ItemsPanel>
           <ItemsControl.ItemTemplate>
             <DataTemplate x:DataType="vm:CountdownPreset">
-              <Button Content="{Binding Label}" Margin="0,0,8,0" MinWidth="64" HorizontalContentAlignment="Center"
+              <Button Classes="chip" Content="{Binding Label}" Margin="0,0,8,0"
                       Command="{Binding $parent[ItemsControl].((vm:CountdownViewModel)DataContext).ApplyPresetCommand}"
                       CommandParameter="{Binding}" />
             </DataTemplate>
@@ -39,12 +40,23 @@
       </StackPanel>
     </Border>
 
-    <TextBlock Classes="digits" Text="{Binding Display}" FontSize="64" FontWeight="Light" HorizontalAlignment="Center" />
-    <ProgressBar Value="{Binding Progress}" Minimum="0" Maximum="100" Height="6" MaxWidth="480" />
+    <!-- 進度環：顯示剩餘比例；時間到轉紅。 -->
+    <Viewbox Grid.Row="1" MaxHeight="300" MinHeight="140" Stretch="Uniform" Margin="0,14,0,0">
+      <Panel Width="300" Height="300" Classes.running="{Binding IsRunning}" Classes.timeup="{Binding IsTimeUp}">
+        <Ellipse Classes="ringTrack" Margin="6" />
+        <Arc Classes="ringValue" Margin="6" SweepAngle="{Binding Progress, Converter={x:Static views:RingAngles.Remaining}}" />
+        <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
+          <TextBlock Classes="digits ringTime" FontSize="46" FontWeight="Light" HorizontalAlignment="Center"
+                     Text="{Binding Display, Converter={x:Static views:TimeParts.Main}}" />
+          <TextBlock Classes="digits muted" FontSize="24" FontWeight="Light" HorizontalAlignment="Center"
+                     Text="{Binding Display, Converter={x:Static views:TimeParts.Fraction}}" />
+        </StackPanel>
+      </Panel>
+    </Viewbox>
 
     <!-- 時間到提示 -->
-    <Border IsVisible="{Binding IsTimeUp}" Background="{DynamicResource TimeUpBrush}" CornerRadius="8" Padding="16,10"
-            HorizontalAlignment="Center" MinWidth="320">
+    <Border Grid.Row="2" IsVisible="{Binding IsTimeUp}" Background="{DynamicResource TimeUpBrush}" CornerRadius="10"
+            Padding="16,10" HorizontalAlignment="Center" MinWidth="320" Margin="0,12,0,0">
       <Grid ColumnDefinitions="*,Auto">
         <TextBlock Text="時間到！已存成一筆紀錄。" FontSize="16" FontWeight="SemiBold" VerticalAlignment="Center"
                    Foreground="{DynamicResource TimeUpTextBrush}" />
@@ -52,14 +64,19 @@
       </Grid>
     </Border>
 
-    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Spacing="12">
+    <StackPanel Grid.Row="3" Orientation="Horizontal" HorizontalAlignment="Center" Spacing="12" Margin="0,14,0,0">
       <Button Classes="primary accent" Content="{Binding StartPauseText}" Command="{Binding StartPauseCommand}" />
       <Button Classes="secondary" Content="重置" Command="{Binding ResetCommand}" />
     </StackPanel>
 
-    <CheckBox Content="時間到時播放提示音" IsChecked="{Binding SoundEnabled}" HorizontalAlignment="Center" />
-
-    <TextBlock Classes="muted" HorizontalAlignment="Center" FontSize="12" TextWrapping="Wrap" TextAlignment="Center"
-               Text="快捷鍵：空白鍵 開始／暫停　R 重置。時間到或中途重置都會自動存成紀錄。" />
-  </StackPanel>
+    <StackPanel Grid.Row="4" HorizontalAlignment="Center" Spacing="8" Margin="0,12,0,0">
+      <CheckBox Content="時間到時播放提示音" IsChecked="{Binding SoundEnabled}" HorizontalAlignment="Center" />
+      <StackPanel Classes="hints" Orientation="Horizontal" HorizontalAlignment="Center" Spacing="6">
+        <Border Classes="kbd"><TextBlock Text="空白鍵" /></Border>
+        <TextBlock Text="開始／暫停" Margin="0,0,8,0" />
+        <Border Classes="kbd"><TextBlock Text="R" /></Border>
+        <TextBlock Text="重置　·　時間到或中途重置都會自動存成紀錄" />
+      </StackPanel>
+    </StackPanel>
+  </Grid>
 </UserControl>

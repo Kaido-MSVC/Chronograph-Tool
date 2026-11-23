@@ -1,37 +1,56 @@
 <UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:vm="using:ChronographTool.ViewModels"
+             xmlns:views="using:ChronographTool.Views"
              x:Class="ChronographTool.Views.StopwatchView"
              x:DataType="vm:StopwatchViewModel">
 
-  <Grid RowDefinitions="Auto,Auto,Auto,*" Margin="24,20,24,20" MaxWidth="720">
-    <TextBlock Classes="digits" Text="{Binding Display}" FontSize="64" FontWeight="Light"
-               HorizontalAlignment="Center" Margin="0,16,0,20" />
+  <!-- 進度環與計次清單依視窗高度按比例縮放（Viewbox），小視窗也不會把清單擠掉。 -->
+  <Grid RowDefinitions="3*,Auto,Auto,2*" Margin="24,4,24,16" MaxWidth="760">
+    <Viewbox MaxHeight="300" MinHeight="150" Stretch="Uniform">
+      <Panel Width="300" Height="300" Classes.running="{Binding IsRunning}">
+        <Ellipse Classes="ringTrack" Margin="6" />
+        <Arc Classes="ringValue" Margin="6" SweepAngle="{Binding Display, Converter={x:Static views:RingAngles.SecondHand}}" />
+        <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Spacing="0">
+          <TextBlock Classes="digits ringTime" FontSize="46" FontWeight="Light" HorizontalAlignment="Center"
+                     Text="{Binding Display, Converter={x:Static views:TimeParts.Main}}" />
+          <TextBlock Classes="digits muted" FontSize="24" FontWeight="Light" HorizontalAlignment="Center"
+                     Text="{Binding Display, Converter={x:Static views:TimeParts.Fraction}}" />
+        </StackPanel>
+      </Panel>
+    </Viewbox>
 
-    <StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Center" Spacing="12">
+    <StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Center" Spacing="12" Margin="0,14,0,0">
       <Button Classes="primary accent" Content="{Binding StartPauseText}" Command="{Binding StartPauseCommand}" />
       <Button Classes="secondary" Content="計次" Command="{Binding LapCommand}" />
       <Button Classes="secondary" Content="重置" Command="{Binding ResetCommand}" />
     </StackPanel>
 
-    <TextBlock Grid.Row="2" Classes="muted" HorizontalAlignment="Center" Margin="0,12,0,16" FontSize="12"
-               Text="快捷鍵：空白鍵 開始／暫停　L 計次　R 重置（重置時自動存成紀錄）" />
+    <StackPanel Grid.Row="2" Classes="hints" Orientation="Horizontal" HorizontalAlignment="Center" Spacing="6" Margin="0,12,0,14">
+      <Border Classes="kbd"><TextBlock Text="空白鍵" /></Border>
+      <TextBlock Text="開始／暫停" Margin="0,0,8,0" />
+      <Border Classes="kbd"><TextBlock Text="L" /></Border>
+      <TextBlock Text="計次" Margin="0,0,8,0" />
+      <Border Classes="kbd"><TextBlock Text="R" /></Border>
+      <TextBlock Text="重置（自動存成紀錄）" />
+    </StackPanel>
 
-    <Border Grid.Row="3" Classes="panel" Padding="0,8">
-      <Grid RowDefinitions="Auto,*">
-        <Grid ColumnDefinitions="80,*,*" Margin="16,4,16,8">
+    <Border Grid.Row="3" Classes="panel" MinHeight="110">
+      <Grid RowDefinitions="Auto,Auto,*">
+        <Grid ColumnDefinitions="80,*,*" Margin="16,10,16,8">
           <TextBlock Classes="section" Text="圈" />
           <TextBlock Grid.Column="1" Classes="section" Text="單圈時間" />
           <TextBlock Grid.Column="2" Classes="section" Text="累計時間" />
         </Grid>
-        <TextBlock Grid.Row="1" Classes="muted" Text="計時中按「計次」記錄每一圈。"
-                   HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,24"
+        <Border Grid.Row="1" Classes="divider" Margin="12,0" />
+        <TextBlock Grid.Row="2" Classes="muted" Text="計時中按「計次」記錄每一圈。"
+                   HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,16"
                    IsVisible="{Binding !HasLaps}" />
-        <ListBox Grid.Row="1" ItemsSource="{Binding Laps}" Background="Transparent" Focusable="False">
+        <ListBox Grid.Row="2" ItemsSource="{Binding Laps}" Background="Transparent" Focusable="False" Margin="0,4">
           <ListBox.ItemTemplate>
             <DataTemplate x:DataType="vm:LapItemViewModel">
               <Grid ColumnDefinitions="80,*,*">
-                <TextBlock Classes="digits" Text="{Binding NumberText}" VerticalAlignment="Center" />
+                <TextBlock Classes="digits muted" Text="{Binding NumberText}" VerticalAlignment="Center" />
                 <StackPanel Grid.Column="1" Orientation="Horizontal">
                   <TextBlock Classes="digits" Text="{Binding SplitText}" VerticalAlignment="Center" />
                   <Border Classes="badge fastest" IsVisible="{Binding IsFastest}">

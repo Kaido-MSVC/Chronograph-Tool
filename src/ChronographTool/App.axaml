@@ -7,31 +7,145 @@
   <Application.Resources>
     <ResourceDictionary>
       <ResourceDictionary.ThemeDictionaries>
+        <!-- 卡片與底色採半透明，讓 Windows 11 的 Mica 背景透出來；不支援 Mica 時由視窗的 TransparencyBackgroundFallback 墊底。 -->
         <ResourceDictionary x:Key="Light">
           <SolidColorBrush x:Key="FastestBrush" Color="#1A7F37" />
+          <SolidColorBrush x:Key="FastestFillBrush" Color="#1F1A7F37" />
           <SolidColorBrush x:Key="SlowestBrush" Color="#C4314B" />
+          <SolidColorBrush x:Key="SlowestFillBrush" Color="#1FC4314B" />
           <SolidColorBrush x:Key="MutedTextBrush" Color="#5F6368" />
-          <SolidColorBrush x:Key="PanelBrush" Color="#F4F5F7" />
-          <SolidColorBrush x:Key="PanelBorderBrush" Color="#E1E3E8" />
+          <SolidColorBrush x:Key="PanelBrush" Color="#B3FFFFFF" />
+          <SolidColorBrush x:Key="PanelBorderBrush" Color="#14000000" />
+          <SolidColorBrush x:Key="SubtleFillBrush" Color="#0A000000" />
+          <SolidColorBrush x:Key="SubtleFillHoverBrush" Color="#14000000" />
+          <SolidColorBrush x:Key="SegmentSelectedBrush" Color="#FFFFFF" />
+          <SolidColorBrush x:Key="RingTrackBrush" Color="#12000000" />
+          <SolidColorBrush x:Key="RingAccentBrush" Color="{DynamicResource SystemAccentColorDark1}" />
+          <SolidColorBrush x:Key="CountdownChipBrush" Color="#1F8764B8" />
+          <SolidColorBrush x:Key="CountdownChipTextBrush" Color="#6B4FA0" />
+          <SolidColorBrush x:Key="StopwatchChipBrush" Color="#1F0067C0" />
+          <SolidColorBrush x:Key="StopwatchChipTextBrush" Color="#005A9E" />
           <SolidColorBrush x:Key="NoticeBrush" Color="#FFF4CE" />
           <SolidColorBrush x:Key="NoticeTextBrush" Color="#4A3A00" />
           <SolidColorBrush x:Key="TimeUpBrush" Color="#FDE7E9" />
           <SolidColorBrush x:Key="TimeUpTextBrush" Color="#8A1C2B" />
+          <BoxShadows x:Key="SegmentShadow">0 1 3 0 #26000000</BoxShadows>
         </ResourceDictionary>
         <ResourceDictionary x:Key="Dark">
           <SolidColorBrush x:Key="FastestBrush" Color="#6CCB8A" />
+          <SolidColorBrush x:Key="FastestFillBrush" Color="#296CCB8A" />
           <SolidColorBrush x:Key="SlowestBrush" Color="#FF8A9B" />
+          <SolidColorBrush x:Key="SlowestFillBrush" Color="#29FF8A9B" />
           <SolidColorBrush x:Key="MutedTextBrush" Color="#A8ADB4" />
-          <SolidColorBrush x:Key="PanelBrush" Color="#25272B" />
-          <SolidColorBrush x:Key="PanelBorderBrush" Color="#373A40" />
+          <SolidColorBrush x:Key="PanelBrush" Color="#0DFFFFFF" />
+          <SolidColorBrush x:Key="PanelBorderBrush" Color="#1AFFFFFF" />
+          <SolidColorBrush x:Key="SubtleFillBrush" Color="#0FFFFFFF" />
+          <SolidColorBrush x:Key="SubtleFillHoverBrush" Color="#1AFFFFFF" />
+          <SolidColorBrush x:Key="SegmentSelectedBrush" Color="#26FFFFFF" />
+          <SolidColorBrush x:Key="RingTrackBrush" Color="#1AFFFFFF" />
+          <SolidColorBrush x:Key="RingAccentBrush" Color="{DynamicResource SystemAccentColorLight2}" />
+          <SolidColorBrush x:Key="CountdownChipBrush" Color="#33B89AE8" />
+          <SolidColorBrush x:Key="CountdownChipTextBrush" Color="#D4C2F5" />
+          <SolidColorBrush x:Key="StopwatchChipBrush" Color="#3360B6F0" />
+          <SolidColorBrush x:Key="StopwatchChipTextBrush" Color="#A9D6F7" />
           <SolidColorBrush x:Key="NoticeBrush" Color="#433519" />
           <SolidColorBrush x:Key="NoticeTextBrush" Color="#FCE8B2" />
           <SolidColorBrush x:Key="TimeUpBrush" Color="#4A1F26" />
           <SolidColorBrush x:Key="TimeUpTextBrush" Color="#FFD1D7" />
+          <BoxShadows x:Key="SegmentShadow">0 1 3 0 #40000000</BoxShadows>
         </ResourceDictionary>
       </ResourceDictionary.ThemeDictionaries>
 
       <FontFamily x:Key="DigitsFont">Cascadia Mono, Consolas, Courier New</FontFamily>
+
+      <!-- 分頁：膠囊狀分段切換鈕（segmented control），選取項目浮起並帶陰影，切換內容時淡入淡出。 -->
+      <ControlTheme x:Key="SegmentedTabItem" TargetType="TabItem">
+        <Setter Property="FontSize" Value="14" />
+        <Setter Property="Padding" Value="20,6" />
+        <Setter Property="MinHeight" Value="0" />
+        <Setter Property="CornerRadius" Value="6" />
+        <Setter Property="Background" Value="Transparent" />
+        <Setter Property="Foreground" Value="{DynamicResource MutedTextBrush}" />
+        <Setter Property="Cursor" Value="Hand" />
+        <Setter Property="Template">
+          <ControlTemplate>
+            <Border Name="PART_LayoutRoot"
+                    Background="{TemplateBinding Background}"
+                    CornerRadius="{TemplateBinding CornerRadius}"
+                    Padding="{TemplateBinding Padding}">
+              <Border.Transitions>
+                <Transitions>
+                  <BrushTransition Property="Background" Duration="0:0:0.15" />
+                </Transitions>
+              </Border.Transitions>
+              <ContentPresenter Name="PART_ContentPresenter"
+                                HorizontalAlignment="Center" VerticalAlignment="Center"
+                                Content="{TemplateBinding Header}"
+                                ContentTemplate="{TemplateBinding HeaderTemplate}"
+                                RecognizesAccessKey="True" />
+            </Border>
+          </ControlTemplate>
+        </Setter>
+
+        <Style Selector="^:pointerover /template/ Border#PART_LayoutRoot">
+          <Setter Property="Background" Value="{DynamicResource SubtleFillHoverBrush}" />
+        </Style>
+        <Style Selector="^:selected">
+          <Setter Property="Foreground" Value="{DynamicResource SystemControlForegroundBaseHighBrush}" />
+        </Style>
+        <Style Selector="^:selected /template/ Border#PART_LayoutRoot">
+          <Setter Property="Background" Value="{DynamicResource SegmentSelectedBrush}" />
+          <Setter Property="BoxShadow" Value="{DynamicResource SegmentShadow}" />
+        </Style>
+      </ControlTheme>
+
+      <ControlTheme x:Key="SegmentedTabControl" TargetType="TabControl">
+        <Setter Property="Padding" Value="0" />
+        <Setter Property="Background" Value="Transparent" />
+        <Setter Property="ItemContainerTheme" Value="{StaticResource SegmentedTabItem}" />
+        <Setter Property="ItemsPanel">
+          <ItemsPanelTemplate>
+            <StackPanel Orientation="Horizontal" Spacing="2" />
+          </ItemsPanelTemplate>
+        </Setter>
+        <Setter Property="PageTransition">
+          <CrossFade Duration="0:0:0.15" />
+        </Setter>
+        <Setter Property="Template">
+          <ControlTemplate>
+            <DockPanel Background="{TemplateBinding Background}">
+              <Border DockPanel.Dock="Top" HorizontalAlignment="Left" Margin="16,6,16,6" Padding="3"
+                      CornerRadius="9" Background="{DynamicResource SubtleFillBrush}">
+                <ItemsPresenter Name="PART_ItemsPresenter" ItemsPanel="{TemplateBinding ItemsPanel}" />
+              </Border>
+              <Panel ClipToBounds="True">
+                <ContentPresenter Name="PART_SelectedContentHost2"
+                                  Margin="{TemplateBinding Padding}"
+                                  HorizontalContentAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                  VerticalContentAlignment="{TemplateBinding VerticalContentAlignment}"
+                                  IsVisible="False" />
+                <ContentPresenter Name="PART_SelectedContentHost"
+                                  Margin="{TemplateBinding Padding}"
+                                  HorizontalContentAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                  VerticalContentAlignment="{TemplateBinding VerticalContentAlignment}" />
+              </Panel>
+            </DockPanel>
+          </ControlTemplate>
+        </Setter>
+      </ControlTheme>
+
+      <!-- 主視窗自己畫了標題列（圖示＋名稱），因此隱藏 Avalonia 內建裝飾的標題文字與全螢幕按鈕，
+           只留最小化、最大化、關閉。PART_TitleTextPanel 的 IsVisible 是 TemplateBinding，Style 蓋不掉，
+           所以改為隱藏它底下的 TextBlock。 -->
+      <ControlTheme x:Key="MainWindowDecorations" TargetType="WindowDrawnDecorations"
+                    BasedOn="{StaticResource {x:Type WindowDrawnDecorations}}">
+        <Style Selector="^ /template/ Panel#PART_TitleTextPanel > TextBlock">
+          <Setter Property="IsVisible" Value="False" />
+        </Style>
+        <Style Selector="^ /template/ Button#PART_FullScreenButton">
+          <Setter Property="IsVisible" Value="False" />
+        </Style>
+      </ControlTheme>
     </ResourceDictionary>
   </Application.Resources>
 
@@ -53,14 +167,45 @@
       <Setter Property="Background" Value="{DynamicResource PanelBrush}" />
       <Setter Property="BorderBrush" Value="{DynamicResource PanelBorderBrush}" />
       <Setter Property="BorderThickness" Value="1" />
-      <Setter Property="CornerRadius" Value="8" />
+      <Setter Property="CornerRadius" Value="10" />
     </Style>
+    <Style Selector="Border.divider">
+      <Setter Property="Height" Value="1" />
+      <Setter Property="Background" Value="{DynamicResource PanelBorderBrush}" />
+    </Style>
+
+    <!-- 主要／次要動作鈕：膠囊外型。 -->
     <Style Selector="Button.primary, Button.secondary">
-      <Setter Property="MinWidth" Value="104" />
-      <Setter Property="Padding" Value="16,8" />
+      <Setter Property="MinWidth" Value="112" />
+      <Setter Property="Height" Value="40" />
+      <Setter Property="Padding" Value="20,0" />
+      <Setter Property="CornerRadius" Value="20" />
       <Setter Property="HorizontalContentAlignment" Value="Center" />
+      <Setter Property="VerticalContentAlignment" Value="Center" />
       <Setter Property="FontSize" Value="15" />
     </Style>
+    <Style Selector="Button.primary">
+      <Setter Property="MinWidth" Value="132" />
+      <Setter Property="FontWeight" Value="SemiBold" />
+    </Style>
+    <Style Selector="Button /template/ ContentPresenter#PART_ContentPresenter">
+      <Setter Property="Transitions">
+        <Transitions>
+          <BrushTransition Property="Background" Duration="0:0:0.12" />
+        </Transitions>
+      </Setter>
+    </Style>
+
+    <!-- 預設時間等小膠囊按鈕。 -->
+    <Style Selector="Button.chip">
+      <Setter Property="CornerRadius" Value="14" />
+      <Setter Property="Padding" Value="14,4" />
+      <Setter Property="MinWidth" Value="60" />
+      <Setter Property="HorizontalContentAlignment" Value="Center" />
+      <Setter Property="Background" Value="{DynamicResource SubtleFillBrush}" />
+      <Setter Property="BorderThickness" Value="0" />
+    </Style>
+
     <!-- 低調的文字按鈕（如「關於」）：平時無背景與外框，滑鼠移上才顯示 Fluent 的懸停底色。 -->
     <Style Selector="Button.subtle">
       <Setter Property="Background" Value="Transparent" />
@@ -69,11 +214,59 @@
       <Setter Property="FontSize" Value="13" />
       <Setter Property="Foreground" Value="{DynamicResource MutedTextBrush}" />
     </Style>
-    <!-- 最快／最慢標籤：外框與文字同色，深淺色主題都維持足夠對比。 -->
-    <Style Selector="Border.badge">
+
+    <!-- 快捷鍵提示中的鍵帽。 -->
+    <Style Selector="Border.kbd">
+      <Setter Property="BorderBrush" Value="{DynamicResource PanelBorderBrush}" />
+      <Setter Property="Background" Value="{DynamicResource SubtleFillBrush}" />
+      <Setter Property="BorderThickness" Value="1,1,1,2" />
       <Setter Property="CornerRadius" Value="4" />
-      <Setter Property="BorderThickness" Value="1" />
       <Setter Property="Padding" Value="6,0" />
+      <Setter Property="VerticalAlignment" Value="Center" />
+    </Style>
+    <Style Selector="Border.kbd > TextBlock">
+      <Setter Property="FontSize" Value="11" />
+      <Setter Property="Foreground" Value="{DynamicResource MutedTextBrush}" />
+    </Style>
+    <Style Selector="StackPanel.hints > TextBlock">
+      <Setter Property="FontSize" Value="12" />
+      <Setter Property="VerticalAlignment" Value="Center" />
+      <Setter Property="Foreground" Value="{DynamicResource MutedTextBrush}" />
+    </Style>
+
+    <!-- 進度環：底軌＋弧線。未計時／暫停時弧線變淡，計時中全亮，時間到轉紅。 -->
+    <Style Selector="Ellipse.ringTrack">
+      <Setter Property="Stroke" Value="{DynamicResource RingTrackBrush}" />
+      <Setter Property="StrokeThickness" Value="10" />
+    </Style>
+    <Style Selector="Arc.ringValue">
+      <Setter Property="Stroke" Value="{DynamicResource RingAccentBrush}" />
+      <Setter Property="StrokeThickness" Value="10" />
+      <Setter Property="StrokeLineCap" Value="Round" />
+      <Setter Property="StartAngle" Value="-90" />
+      <Setter Property="Opacity" Value="0.45" />
+      <Setter Property="Transitions">
+        <Transitions>
+          <DoubleTransition Property="Opacity" Duration="0:0:0.2" />
+        </Transitions>
+      </Setter>
+    </Style>
+    <Style Selector="Panel.running Arc.ringValue">
+      <Setter Property="Opacity" Value="1" />
+    </Style>
+    <Style Selector="Panel.timeup Arc.ringValue">
+      <Setter Property="Opacity" Value="1" />
+      <Setter Property="Stroke" Value="{DynamicResource SlowestBrush}" />
+    </Style>
+    <Style Selector="Panel.timeup TextBlock.ringTime">
+      <Setter Property="Foreground" Value="{DynamicResource SlowestBrush}" />
+    </Style>
+
+    <!-- 最快／最慢標籤：淡色底＋同色文字與外框，深淺色主題都維持足夠對比。 -->
+    <Style Selector="Border.badge">
+      <Setter Property="CornerRadius" Value="10" />
+      <Setter Property="BorderThickness" Value="1" />
+      <Setter Property="Padding" Value="8,0" />
       <Setter Property="Margin" Value="8,0,0,0" />
       <Setter Property="VerticalAlignment" Value="Center" />
     </Style>
@@ -83,15 +276,39 @@
     </Style>
     <Style Selector="Border.badge.fastest">
       <Setter Property="BorderBrush" Value="{DynamicResource FastestBrush}" />
+      <Setter Property="Background" Value="{DynamicResource FastestFillBrush}" />
     </Style>
     <Style Selector="Border.badge.fastest > TextBlock">
       <Setter Property="Foreground" Value="{DynamicResource FastestBrush}" />
     </Style>
     <Style Selector="Border.badge.slowest">
       <Setter Property="BorderBrush" Value="{DynamicResource SlowestBrush}" />
+      <Setter Property="Background" Value="{DynamicResource SlowestFillBrush}" />
     </Style>
     <Style Selector="Border.badge.slowest > TextBlock">
       <Setter Property="Foreground" Value="{DynamicResource SlowestBrush}" />
+    </Style>
+
+    <!-- 紀錄清單的類型標籤：碼表藍、計時器紫。 -->
+    <Style Selector="Border.kindChip">
+      <Setter Property="CornerRadius" Value="10" />
+      <Setter Property="Padding" Value="8,1" />
+      <Setter Property="MinWidth" Value="52" />
+      <Setter Property="Margin" Value="0,0,10,0" />
+      <Setter Property="VerticalAlignment" Value="Center" />
+      <Setter Property="Background" Value="{DynamicResource StopwatchChipBrush}" />
+    </Style>
+    <Style Selector="Border.kindChip > TextBlock">
+      <Setter Property="FontSize" Value="12" />
+      <Setter Property="FontWeight" Value="SemiBold" />
+      <Setter Property="HorizontalAlignment" Value="Center" />
+      <Setter Property="Foreground" Value="{DynamicResource StopwatchChipTextBrush}" />
+    </Style>
+    <Style Selector="Border.kindChip.countdown">
+      <Setter Property="Background" Value="{DynamicResource CountdownChipBrush}" />
+    </Style>
+    <Style Selector="Border.kindChip.countdown > TextBlock">
+      <Setter Property="Foreground" Value="{DynamicResource CountdownChipTextBrush}" />
     </Style>
   </Application.Styles>
 </Application>

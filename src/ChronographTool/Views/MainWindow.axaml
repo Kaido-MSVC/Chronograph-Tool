@@ -6,12 +6,33 @@
         x:DataType="vm:MainWindowViewModel"
         Title="Chronograph Tool"
         Icon="/Assets/app.ico"
-        Width="820" Height="620" MinWidth="640" MinHeight="480"
-        WindowStartupLocation="CenterScreen">
+        Width="820" Height="640" MinWidth="640" MinHeight="480"
+        WindowStartupLocation="CenterScreen"
+        Background="Transparent"
+        TransparencyLevelHint="Mica"
+        ExtendClientAreaToDecorationsHint="True"
+        WindowDecorationsTheme="{StaticResource MainWindowDecorations}">
+  <!-- Windows 11 使用 Mica 背景並把內容延伸到標題列；不支援時自動退回 Fluent 的實色底（TransparencyBackgroundFallback）。 -->
 
   <DockPanel>
+    <!-- 自訂標題列：只放圖示與名稱，不接受滑鼠，整列仍可拖曳視窗。高度跟隨系統標題列。 -->
+    <Grid DockPanel.Dock="Top" ColumnDefinitions="Auto,*" IsHitTestVisible="False" MinHeight="32"
+          Height="{Binding $parent[Window].WindowDecorationMargin.Top}">
+      <Viewbox Width="16" Height="16" Margin="16,0,10,0" VerticalAlignment="Center">
+        <Canvas Width="24" Height="24">
+          <Rectangle Canvas.Left="9" Canvas.Top="1" Width="6" Height="2.4" RadiusX="1" RadiusY="1"
+                     Fill="{DynamicResource RingAccentBrush}" />
+          <Ellipse Canvas.Left="3.2" Canvas.Top="5.2" Width="17.6" Height="17.6" StrokeThickness="2.4"
+                   Stroke="{DynamicResource RingAccentBrush}" />
+          <Line StartPoint="12,9.5" EndPoint="12,14" StrokeThickness="2.4" StrokeLineCap="Round"
+                Stroke="{DynamicResource RingAccentBrush}" />
+        </Canvas>
+      </Viewbox>
+      <TextBlock Grid.Column="1" Text="Chronograph Tool" FontSize="12" VerticalAlignment="Center" Classes="muted" />
+    </Grid>
+
     <!-- 提示列：載入失敗、存檔失敗、匯出結果等訊息。 -->
-    <Border DockPanel.Dock="Top" IsVisible="{Binding HasNotice}"
+    <Border DockPanel.Dock="Top" IsVisible="{Binding HasNotice}" Margin="16,4,16,4" CornerRadius="8"
             Background="{DynamicResource NoticeBrush}" Padding="16,10">
       <Grid ColumnDefinitions="*,Auto">
         <SelectableTextBlock Text="{Binding Notice}" TextWrapping="Wrap" VerticalAlignment="Center"
@@ -22,7 +43,7 @@
     </Border>
 
     <Grid>
-      <TabControl SelectedIndex="{Binding SelectedTab}" Padding="0">
+      <TabControl Theme="{StaticResource SegmentedTabControl}" SelectedIndex="{Binding SelectedTab}">
         <TabItem Header="碼表">
           <views:StopwatchView DataContext="{Binding Stopwatch}" />
         </TabItem>
@@ -34,9 +55,9 @@
         </TabItem>
       </TabControl>
 
-      <!-- 「關於」：疊在分頁列右側，低調的文字按鈕。 -->
+      <!-- 「關於」：與分頁列同一列，靠右的低調文字按鈕。 -->
       <Button Classes="subtle" Content="關於" Click="OnAboutClick"
-              HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,8,12,0"
+              HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,8,16,0"
               ToolTip.Tip="版本、著作權與授權資訊" />
     </Grid>
   </DockPanel>
