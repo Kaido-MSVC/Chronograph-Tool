@@ -5,7 +5,7 @@ Windows 桌面用的碼表與倒數計時器，能自動記錄每次計時，並
 ## 下載
 
 1. 先安裝 [.NET 11 Desktop Runtime（x64）](https://dotnet.microsoft.com/download/dotnet/11.0)：在下載頁的「.NET Desktop Runtime」那一列，下載 Windows x64 安裝程式。已經裝過就不用再裝。
-2. 下載 [ChronographTool-1.0.0-win-x64.zip](https://github.com/Kaido-MSVC/Chronograph-Tool/releases/download/v1.0.0/ChronographTool-1.0.0-win-x64.zip)，並與 [v1.0.0 發行說明](https://github.com/Kaido-MSVC/Chronograph-Tool/releases/tag/v1.0.0) 所列的 SHA-256 比對。
+2. 到 [最新版的 Release 頁面](https://github.com/Kaido-MSVC/Chronograph-Tool/releases/latest) 下載 `ChronographTool-<版本>-win-x64.zip`，並請比對該版發行說明裡的 SHA-256。
 3. 解壓縮後執行資料夾裡的 `ChronographTool.exe`。整個資料夾要一起保留，不要只把 exe 複製出去。
 
 系統需求：Windows 10／11 x64。紀錄存在 `%APPDATA%\Chronograph Tool\`。
