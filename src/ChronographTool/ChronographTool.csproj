@@ -7,6 +7,8 @@
     <RootNamespace>ChronographTool</RootNamespace>
     <ApplicationManifest>app.manifest</ApplicationManifest>
     <ApplicationIcon>Assets\app.ico</ApplicationIcon>
+    <!-- 讓不帶 -r 的 restore 也保留 win-x64 區段，避免 build/test 改寫 packages.lock.json（發行用 -r win-x64）。 -->
+    <RuntimeIdentifiers>win-x64</RuntimeIdentifiers>
     <!-- LibraryImport（PlaySound、FlashWindowEx、AllowSetForegroundWindow）的產生程式碼需要。 -->
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <Version>1.2.0</Version>
