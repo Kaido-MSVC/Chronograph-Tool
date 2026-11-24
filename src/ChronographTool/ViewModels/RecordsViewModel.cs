@@ -137,13 +137,40 @@ public sealed partial class RecordsViewModel : ObservableObject
         var message = targets.Count == 1
             ? $"確定要刪除 {targets[0].StartText} 的{targets[0].KindText}紀錄嗎？刪除後無法復原。"
             : $"確定要刪除選取的 {targets.Count} 筆紀錄嗎？刪除後無法復原。";
-        if (!await ui.ConfirmAsync("刪除紀錄", message, "刪除")) return;
+        await RemoveItemsAsync(targets, "刪除紀錄", message, "刪除");
+    }
+
+    /// <summary>有設定任何篩選條件（類型或起訖日期）。</summary>
+    private bool IsFiltered => KindFilter != 0 || FromDate is not null || ToDate is not null;
+
+    private bool CanDeleteAllShown() => Items.Count > 0;
+
+    /// <summary>刪除目前篩選後顯示在清單中的全部紀錄；被篩選隱藏的紀錄不受影響。</summary>
+    [RelayCommand(CanExecute = nameof(CanDeleteAllShown))]
+    private async Task DeleteAllShownAsync()
+    {
+        CommitNote();
+        var targets = Items.ToList();
+        if (targets.Count == 0) return;
+
+        var message = IsFiltered
+            ? $"確定要刪除目前篩選顯示的 {targets.Count} 筆紀錄嗎？未顯示的紀錄不受影響。刪除後無法復原。"
+            : $"確定要刪除全部 {targets.Count} 筆紀錄嗎？刪除後無法復原。";
+        await RemoveItemsAsync(targets, "清除紀錄", message, "全部刪除");
+    }
+
+    /// <summary>確認後從清單與 records.json 移除指定紀錄；使用者取消時不做任何事。</summary>
+    private async Task RemoveItemsAsync(IReadOnlyList<RecordItemViewModel> targets, string title, string message, string confirmText)
+    {
+        if (!await ui.ConfirmAsync(title, message, confirmText)) return;
 
         foreach (var item in targets)
         {
             all.Remove(item);
             Items.Remove(item);
         }
+        // 明細面板不可殘留已刪除的紀錄（ListBox 通常會自動清掉，這裡再保險一次）。
+        if (Current is { } current && targets.Contains(current)) Current = null;
         if (!repository.Remove(targets.Select(t => t.Id))) notify(SaveFailedMessage);
         SetSelection([]);
         RaiseListChanged();
@@ -232,5 +259,6 @@ public sealed partial class RecordsViewModel : ObservableObject
         OnPropertyChanged(nameof(HasAnyRecord));
         OnPropertyChanged(nameof(EmptyText));
         OnPropertyChanged(nameof(SummaryText));
+        DeleteAllShownCommand.NotifyCanExecuteChanged();
     }
 }

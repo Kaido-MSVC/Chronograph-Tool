@@ -212,6 +212,29 @@ public sealed class RecordStoreTests : IDisposable
     }
 
     [Fact]
+    public void RemoveMultiple_PersistsRemaining_AndRemoveAll_ReloadsEmpty()
+    {
+        var repo = new RecordRepository(RecordsPath);
+        repo.Load();
+        var a = Sample("A");
+        var b = Sample("B");
+        var c = Sample("C");
+        repo.Add(a);
+        repo.Add(b);
+        repo.Add(c);
+
+        Assert.True(repo.Remove([a.Id, c.Id]));
+        var reloaded = new RecordRepository(RecordsPath);
+        reloaded.Load();
+        Assert.Equal(b.Id, Assert.Single(reloaded.Records).Id);
+
+        Assert.True(repo.Remove(repo.Records.Select(r => r.Id).ToList()));
+        var empty = new RecordRepository(RecordsPath);
+        Assert.Equal(LoadOutcome.Loaded, empty.Load().Outcome);
+        Assert.Empty(empty.Records);
+    }
+
+    [Fact]
     public async Task WriteCopy_ProducesLoadableRecordsFile()
     {
         var repo = new RecordRepository(RecordsPath);

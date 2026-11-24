@@ -126,7 +126,11 @@
 
     <!-- 動作列 -->
     <Grid Grid.Row="2" ColumnDefinitions="Auto,*,Auto">
-      <Button Content="刪除選取…" Command="{Binding DeleteSelectedCommand}" VerticalAlignment="Center" />
+      <StackPanel Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
+        <Button Content="刪除選取…" Command="{Binding DeleteSelectedCommand}" />
+        <!-- 刪除目前篩選顯示的全部紀錄，被篩選隱藏的不受影響。 -->
+        <Button Content="全部清除…" Command="{Binding DeleteAllShownCommand}" />
+      </StackPanel>
       <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="8">
         <ComboBox ItemsSource="{Binding ExportScopeOptions}" SelectedIndex="{Binding ExportScope}" MinWidth="130" />
         <ComboBox ItemsSource="{Binding ExportFormatOptions}" SelectedIndex="{Binding ExportFormatIndex}" MinWidth="210" />
